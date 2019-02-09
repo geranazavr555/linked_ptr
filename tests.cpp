@@ -36,6 +36,12 @@ TEST(constructors, pointer_t)
     linked_ptr<int> x(new int(5));
 }
 
+TEST(constructors, pointer_u)
+{
+    //linked_ptr<int> x(new char(5));
+    //std::shared_ptr<int> x(new char(5));
+}
+
 TEST(coping, constructor)
 {
     linked_ptr<int> x(new int(5));

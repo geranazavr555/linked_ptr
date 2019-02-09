@@ -20,10 +20,10 @@ public:
         other.attach(*this);
     }
 
-    template <typename U>
+    template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
     linked_ptr(U* pointer) : l(nullptr), r(nullptr), pointer(pointer) {}
 
-    template <typename U>
+    template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
     linked_ptr(linked_ptr<U> const& other) : l(nullptr), r(nullptr), pointer(other.get())
     {
         other.attach(*this);
@@ -42,11 +42,11 @@ public:
         return *this;
     }
 
-    template <typename U>
+    template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
     linked_ptr& operator=(linked_ptr<U> const& other);
 
 // common smart pointer interface
-    template <typename U = T>
+    template <typename U = T, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
     void reset(U* new_pointer = nullptr)
     {
         destroy();
