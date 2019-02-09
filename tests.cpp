@@ -77,6 +77,9 @@ struct Derived1 : Base1 {};
 TEST(copying, constructor2)
 {
     linked_ptr<Base1> x = linked_ptr<Derived1>(new Derived1());
+    linked_ptr<Base1> y = linked_ptr<Base1>(new Derived1());
+    //linked_ptr<Derived1> z = linked_ptr<Base1>(new Derived1());
+    //std::shared_ptr<Derived1> z(std::shared_ptr<Base1>(new Derived1()));
 }
 
 TEST(coping, assign)
