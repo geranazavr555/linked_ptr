@@ -1,5 +1,5 @@
 #include "gtest.h"
-#include "linked_ptr.h"
+#include "linked_ptr.hpp"
 #include <memory>
 #include <set>
 
@@ -14,19 +14,19 @@ TEST(constructors, default_)
 }
 
 class ForwardDeclaratedClass;
-
+/*
 TEST(constructors, forward_decl_def)
 {
     // Must compile
-    //linked_ptr<ForwardDeclaratedClass> x;
+    linked_ptr<ForwardDeclaratedClass> x;
     //extern ForwardDeclaratedClass exfwd;
     //std::shared_ptr<ForwardDeclaratedClass> x(&exfwd);
-    //std::shared_ptr<ForwardDeclaratedClass> y;
+    std::shared_ptr<ForwardDeclaratedClass> y;
     //std::shared_ptr<int> z(new int(5));
     //std::cout << "kek";
     GTEST_FAIL();
 }
-
+*/
 TEST(constructors, forward_decl_decl)
 {
     // Must compile
