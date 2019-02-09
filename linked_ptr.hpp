@@ -6,6 +6,9 @@ namespace smart_ptr
     template <typename T>
     class linked_ptr
     {
+        template <typename U>
+        friend class linked_ptr;
+
     private:
         mutable linked_ptr<T> *l;
         mutable linked_ptr<T> *r;
@@ -21,6 +24,12 @@ namespace smart_ptr
         {
             other.attach(*this);
         }
+/*
+        template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
+        linked_ptr(linked_ptr<U> const& other) : l(nullptr), r(nullptr), pointer(other.get())
+        {
+            other.attach(*this);
+        }*/
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
         linked_ptr(U* pointer) : l(nullptr), r(nullptr), pointer(pointer) {}
@@ -95,13 +104,14 @@ namespace smart_ptr
         }
 
     private:
-        void attach(linked_ptr const& copy) const noexcept
+        template <typename U = T, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
+        void attach(linked_ptr<U> const& copy) const noexcept
         {
-            copy.l = const_cast<linked_ptr<T>*>(this);
-            copy.r = r;
+            copy.l = reinterpret_cast<linked_ptr<U>*>(const_cast<linked_ptr<T>*>(this));
+            copy.r = reinterpret_cast<linked_ptr<U>*>(r);
             if (r)
-                r->l = const_cast<linked_ptr<T>*>(&copy);
-            r = const_cast<linked_ptr<T>*>(&copy);
+                r->l = reinterpret_cast<linked_ptr<T>*>(const_cast<linked_ptr<U>*>(&copy));
+            r = reinterpret_cast<linked_ptr<T>*>(const_cast<linked_ptr<U>*>(&copy));
         }
 
         void detach() const noexcept

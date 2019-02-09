@@ -71,6 +71,14 @@ TEST(coping, constructor)
     ASSERT_EQ(x, y);
 }
 
+struct Base1 {};
+struct Derived1 : Base1 {};
+
+TEST(copying, constructor2)
+{
+    linked_ptr<Base1> x = linked_ptr<Derived1>(new Derived1());
+}
+
 TEST(coping, assign)
 {
     linked_ptr<int> x(new int(5));
