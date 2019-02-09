@@ -13,8 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR}/gtest)
 add_executable(run-tests
         gtest/gtest-all.cc
         gtest/gtest.h
-        gtest/gtest_main.cc
         linked_ptr.h
-        tests.cpp)
+        tests.cpp main.cpp)
 
 target_link_libraries(run-tests -lpthread)

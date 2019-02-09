@@ -5,18 +5,19 @@ template <typename T>
 class linked_ptr
 {
 private:
-    mutable linked_ptr<T> *l, *r;
+    mutable linked_ptr<T> *l;
+    mutable linked_ptr<T> *r;
     T* pointer;
 
 public:
 // constructors / destructor
-    linked_ptr() : l(nullptr), r(nullptr), pointer(nullptr) {}
+    constexpr linked_ptr() noexcept = default;
 
     linked_ptr(T* pointer) : l(nullptr), r(nullptr), pointer(pointer) {}
 
     linked_ptr(linked_ptr const& other) : l(nullptr), r(nullptr), pointer(other.get())
     {
-        other.attach(&this);
+        other.attach(*this);
     }
 
     template <typename U>
@@ -45,7 +46,7 @@ public:
     linked_ptr& operator=(linked_ptr<U> const& other);
 
 // common smart pointer interface
-    template <typename U>
+    template <typename U = T>
     void reset(U* new_pointer = nullptr)
     {
         destroy();
@@ -58,7 +59,7 @@ public:
         linked_ptr* attach_target_b = (other.l ? other.l : other.r);
         detach();
         other.detach();
-        swap(pointer, other.pointer);
+        std::swap(pointer, other.pointer);
         if (attach_target_a)
             attach_target_a->attach(other);
         if (attach_target_b)
@@ -72,7 +73,7 @@ public:
 
     bool unique() const noexcept
     {
-        return !l && !r;
+        return !l && !r && pointer;
     }
 
     operator bool() const noexcept
@@ -92,12 +93,13 @@ public:
     }
 
 private:
-    void attach(linked_ptr<T>& copy)
+    void attach(linked_ptr const& copy) const
     {
-        copy.l = this;
+        copy.l = const_cast<linked_ptr<T>*>(this);
         copy.r = r;
-        r->l = &copy;
-        r = &copy;
+        if (r)
+            r->l = const_cast<linked_ptr<T>*>(&copy);
+        r = const_cast<linked_ptr<T>*>(&copy);
     }
 
     void detach()
@@ -112,7 +114,8 @@ private:
 
     void destroy()
     {
-        if (unique())
+        enum {T_have_to_be_complete = sizeof(T)};
+        if (unique() && pointer)
             delete pointer;
         detach();
     }
