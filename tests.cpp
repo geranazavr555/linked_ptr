@@ -14,7 +14,7 @@ TEST(constructors, default_)
 }
 
 class ForwardDeclaratedClass;
-/*
+
 TEST(constructors, forward_decl_def)
 {
     // Must compile
@@ -24,9 +24,9 @@ TEST(constructors, forward_decl_def)
     std::shared_ptr<ForwardDeclaratedClass> y;
     //std::shared_ptr<int> z(new int(5));
     //std::cout << "kek";
-    GTEST_FAIL();
+    SUCCEED();
 }
-*/
+
 TEST(constructors, forward_decl_decl)
 {
     // Must compile

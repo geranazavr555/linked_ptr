@@ -116,7 +116,7 @@ namespace smart_ptr
 
         void destroy()
         {
-            enum {T_have_to_be_complete = sizeof(T)};
+            //enum {T_have_to_be_complete = sizeof(T)};
             if (unique() && pointer)
                 delete pointer;
             detach();
