@@ -3,6 +3,8 @@
 #include <memory>
 #include <set>
 
+using namespace smart_ptr;
+
 TEST(constructors, default_)
 {
     linked_ptr<int> i;
@@ -36,10 +38,30 @@ TEST(constructors, pointer_t)
     linked_ptr<int> x(new int(5));
 }
 
+struct Base
+{
+    int x;
+    Base(int x) : x(x) {}
+    virtual int result()
+    {
+        return x;
+    }
+};
+
+struct Derived : public Base
+{
+    int y;
+    Derived(int x, int y): Base(x), y(y) {}
+    int result() override
+    {
+        return y;
+    }
+};
+
 TEST(constructors, pointer_u)
 {
-    //linked_ptr<int> x(new char(5));
-    //std::shared_ptr<int> x(new char(5));
+    linked_ptr<Base> bp(new Derived(5, 6));
+    ASSERT_EQ(bp->result(), 6);
 }
 
 TEST(coping, constructor)
