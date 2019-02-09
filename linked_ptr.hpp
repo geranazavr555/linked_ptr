@@ -53,16 +53,16 @@ namespace smart_ptr
         friend class linked_ptr;
 
     private:
-        mutable intrusive_mixin lnk;
+        mutable intrusive_mixin intrusive_node;
         T* pointer;
 
     public:
 // constructors / destructor
-        constexpr linked_ptr() noexcept : lnk{nullptr, nullptr}, pointer(nullptr) {}
+        constexpr linked_ptr() noexcept : intrusive_node{nullptr, nullptr}, pointer(nullptr) {}
 
-        linked_ptr(T* pointer) noexcept : lnk{nullptr, nullptr}, pointer(pointer) {}
+        linked_ptr(T* pointer) noexcept : intrusive_node{nullptr, nullptr}, pointer(pointer) {}
 
-        linked_ptr(linked_ptr const& other) : lnk{nullptr, nullptr}, pointer(other.get())
+        linked_ptr(linked_ptr const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
         {
             other.attach(*this);
             //attach(other);
@@ -75,10 +75,10 @@ namespace smart_ptr
         }*/
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(U* pointer) : lnk{nullptr, nullptr}, pointer(pointer) {}
+        linked_ptr(U* pointer) : intrusive_node{nullptr, nullptr}, pointer(pointer) {}
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(linked_ptr<U> const& other) : lnk{nullptr, nullptr}, pointer(other.get())
+        linked_ptr(linked_ptr<U> const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
         {
             //other.attach(*this);
            // if constexpr (std::is_base_of<T, U>::value)
@@ -122,7 +122,7 @@ namespace smart_ptr
 
         void swap(linked_ptr& other) noexcept
         {
-            lnk.swap(other.lnk);
+            intrusive_node.swap(other.intrusive_node);
             std::swap(pointer, other.pointer);
         }
 
@@ -133,7 +133,7 @@ namespace smart_ptr
 
         bool unique() const noexcept
         {
-            return !lnk.l & !lnk.r && pointer;
+            return !intrusive_node.l & !intrusive_node.r && pointer;
         }
 
         operator bool() const noexcept
@@ -156,12 +156,12 @@ namespace smart_ptr
         template <typename U = T, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
         void attach(linked_ptr<U> const& copy) const noexcept
         {
-            lnk.attach(&copy.lnk);
+            intrusive_node.attach(&copy.intrusive_node);
         }
 
         void detach() const noexcept
         {
-            lnk.detach();
+            intrusive_node.detach();
         }
 
         void destroy()
@@ -169,7 +169,7 @@ namespace smart_ptr
             //enum {T_have_to_be_complete = sizeof(T)};
             if (unique() && pointer)
                 delete pointer;
-            lnk.detach();
+            intrusive_node.detach();
         }
     };
 
