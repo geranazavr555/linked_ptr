@@ -11,9 +11,9 @@ private:
 
 public:
 // constructors / destructor
-    constexpr linked_ptr() noexcept = default;
+    constexpr linked_ptr() noexcept : l(nullptr), r(nullptr), pointer(nullptr) {}
 
-    linked_ptr(T* pointer) : l(nullptr), r(nullptr), pointer(pointer) {}
+    linked_ptr(T* pointer) noexcept : l(nullptr), r(nullptr), pointer(pointer) {}
 
     linked_ptr(linked_ptr const& other) : l(nullptr), r(nullptr), pointer(other.get())
     {
@@ -35,7 +35,7 @@ public:
     }
 
 // assign operators
-    linked_ptr& operator=(linked_ptr const& other)
+    linked_ptr& operator=(linked_ptr const& other) noexcept
     {
         auto tmp(other);
         swap(tmp);
@@ -53,7 +53,7 @@ public:
         pointer = new_pointer;
     }
 
-    void swap(linked_ptr& other)
+    void swap(linked_ptr& other) noexcept
     {
         linked_ptr* attach_target_a = (l ? l : r);
         linked_ptr* attach_target_b = (other.l ? other.l : other.r);
@@ -93,7 +93,7 @@ public:
     }
 
 private:
-    void attach(linked_ptr const& copy) const
+    void attach(linked_ptr const& copy) const noexcept
     {
         copy.l = const_cast<linked_ptr<T>*>(this);
         copy.r = r;
@@ -102,7 +102,7 @@ private:
         r = const_cast<linked_ptr<T>*>(&copy);
     }
 
-    void detach()
+    void detach() const noexcept
     {
         if (l)
             l->r = r;
@@ -123,43 +123,43 @@ private:
 
 
 template <typename T, typename U>
-inline bool operator==(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator==(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return a.get() == b.get();
 }
 
 template <typename T, typename U>
-inline bool operator!=(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator!=(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return !(a == b);
 }
 
 template <typename T, typename U>
-inline bool operator<(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator<(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return a.get() < b.get();
 }
 
 template <typename T, typename U>
-inline bool operator>(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator>(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return b < a;
 }
 
 template <typename T, typename U>
-inline bool operator<=(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator<=(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return a < b || a == b;
 }
 
 template <typename T, typename U>
-inline bool operator>=(linked_ptr<T> const& a, linked_ptr<U> const& b)
+inline bool operator>=(linked_ptr<T> const& a, linked_ptr<U> const& b) noexcept
 {
     return (b <= a);
 }
 
 template <typename T>
-void swap(linked_ptr<T> &a, linked_ptr<T> &b)
+void swap(linked_ptr<T> &a, linked_ptr<T> &b) noexcept
 {
     a.swap(b);
 }
