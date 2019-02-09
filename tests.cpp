@@ -4,7 +4,7 @@
 #include <set>
 
 using namespace smart_ptr;
-
+/*
 TEST(constructors, default_)
 {
     linked_ptr<int> i;
@@ -227,3 +227,130 @@ TEST(comparison, set)
     q.insert(linked_ptr<int>(*q.begin()));
     ASSERT_EQ(q.size(), 3);
 }
+
+struct A {
+    A() {
+        a = 0;
+    }
+    int a;
+};
+
+struct B : A {
+    B() {
+        a = 1;
+    }
+};
+
+TEST(third_party_tests, base)
+{
+    bool check = true;
+
+    linked_ptr<int> ptr1(new int(4));
+    linked_ptr<int> ptr2(new int(4));
+
+    linked_ptr<int> ptr3(ptr1);
+
+    check *= ptr2.unique();
+    check *= !ptr1.unique();
+
+    check *= (ptr1 == ptr3);
+
+    ASSERT_TRUE(check);
+}
+*/
+TEST(third_party_tests, del)
+{
+    bool check = true;
+    linked_ptr<std::vector<int>> vptr(new std::vector<int>{1, 2, 3, 4});
+    //std::cerr << "sizeof linked_ptr<std::vector<int>>" << sizeof(linked_ptr<std::vector<int>>) << std::endl;
+    //std::cerr << "align linked_ptr<std::vector<int>>" << alignof(linked_ptr<std::vector<int>>) << std::endl;
+    linked_ptr<std::vector<int>> v2ptr(vptr);
+
+    check *= !v2ptr.unique();
+
+    vptr.~linked_ptr<std::vector<int>>();
+    std::vector<int> v = *v2ptr;
+
+    check *= (v[0] == 1);
+    //check *= v2ptr.unique();
+
+    //v2ptr.reset();
+    //check *=  (v2ptr.get() == nullptr);
+
+    ASSERT_TRUE(check);
+}
+/*
+TEST(third_party_tests, reset)
+{
+    bool check = true;
+
+    linked_ptr<double> ptr1(new double(3.6));
+    linked_ptr<double> ptr2(new double(3.6));
+
+    check *= (ptr1.get() != ptr2.get());
+
+    linked_ptr<double> nptr1(ptr1);
+    (*nptr1) = 4;
+    check *= (*ptr1 == 4);
+
+    nptr1.reset(new double(3.6));
+
+    check *= (*nptr1 == 3.6);
+
+    ASSERT_TRUE(check);
+}
+
+TEST(third_party_tests, test)
+{
+    linked_ptr<A> ptr(new B());
+    bool check = (ptr->a == 1);
+    ASSERT_TRUE(check);
+}
+
+TEST(third_party_tests, set)
+{
+    std::set<linked_ptr<int>> S;
+    linked_ptr<int> p1(new int(1));
+    linked_ptr<int> p2(new int(2));
+    linked_ptr<int> p3(new int(3));
+    S.insert(p1);
+    S.insert(p2);
+    S.insert(p3);
+    SUCCEED();
+}
+
+TEST(third_party_tests, unique)
+{
+    bool check = true;
+    linked_ptr<int> p1(new int(1));
+    linked_ptr<int> p2(new int(2));
+    linked_ptr<int> p3(new int(3));
+    check *= (p1.unique() && p2.unique() && p3.unique());
+    linked_ptr<int> p4 = p3;
+    check *= !p3.unique() && !p4.unique();
+    p3.reset(new int(5));
+    check *= p3.unique() && p4.unique();
+    ASSERT_TRUE(check);
+}
+
+namespace unique2 {
+    struct A {
+        A(int a1) :a(a1) {}
+        int a;
+    };
+
+    struct B : A {
+        B(int a1, int b1) : A(a1), b(b1) {}
+        int b;
+    };
+}
+
+TEST(third_party_tests, unique2)
+{
+    bool check = true;
+    linked_ptr<unique2::B> p1(new unique2::B(2, 3));
+    linked_ptr<unique2::A> p2(p1);
+    check *= !p1.unique();
+    check *= !p2.unique();
+    ASSERT_TRUE(check);
+}*/

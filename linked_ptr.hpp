@@ -65,14 +65,7 @@ namespace smart_ptr
         linked_ptr(linked_ptr const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
         {
             other.attach(*this);
-            //attach(other);
         }
-/*
-        template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(linked_ptr<U> const& other) : l(nullptr), r(nullptr), pointer(other.get())
-        {
-            other.attach(*this);
-        }*/
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
         linked_ptr(U* pointer) : intrusive_node{nullptr, nullptr}, pointer(pointer) {}
@@ -80,15 +73,7 @@ namespace smart_ptr
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
         linked_ptr(linked_ptr<U> const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
         {
-            //other.attach(*this);
-           // if constexpr (std::is_base_of<T, U>::value)
-            //{
-            //    attach(other);
-            //}
-            //else
-            //{
-                other.attach(*this);
-            //}
+            other.attach(*this);
         }
 
         ~linked_ptr()
@@ -133,7 +118,7 @@ namespace smart_ptr
 
         bool unique() const noexcept
         {
-            return !intrusive_node.l & !intrusive_node.r && pointer;
+            return !intrusive_node.l && !intrusive_node.r && pointer;
         }
 
         operator bool() const noexcept
@@ -168,7 +153,10 @@ namespace smart_ptr
         {
             //enum {T_have_to_be_complete = sizeof(T)};
             if (unique() && pointer)
+            {
                 delete pointer;
+            }
+            pointer = nullptr;
             intrusive_node.detach();
         }
     };
