@@ -4,7 +4,7 @@
 #include <set>
 
 using namespace smart_ptr;
-/*
+
 TEST(constructors, default_)
 {
     linked_ptr<int> i;
@@ -257,13 +257,11 @@ TEST(third_party_tests, base)
 
     ASSERT_TRUE(check);
 }
-*/
+
 TEST(third_party_tests, del)
 {
     bool check = true;
     linked_ptr<std::vector<int>> vptr(new std::vector<int>{1, 2, 3, 4});
-    //std::cerr << "sizeof linked_ptr<std::vector<int>>" << sizeof(linked_ptr<std::vector<int>>) << std::endl;
-    //std::cerr << "align linked_ptr<std::vector<int>>" << alignof(linked_ptr<std::vector<int>>) << std::endl;
     linked_ptr<std::vector<int>> v2ptr(vptr);
 
     check *= !v2ptr.unique();
@@ -272,14 +270,14 @@ TEST(third_party_tests, del)
     std::vector<int> v = *v2ptr;
 
     check *= (v[0] == 1);
-    //check *= v2ptr.unique();
+    check *= v2ptr.unique();
 
-    //v2ptr.reset();
-    //check *=  (v2ptr.get() == nullptr);
+    v2ptr.reset();
+    check *=  (v2ptr.get() == nullptr);
 
     ASSERT_TRUE(check);
 }
-/*
+
 TEST(third_party_tests, reset)
 {
     bool check = true;
@@ -353,4 +351,4 @@ TEST(third_party_tests, unique2)
     check *= !p1.unique();
     check *= !p2.unique();
     ASSERT_TRUE(check);
-}*/
+}

@@ -8,10 +8,14 @@ namespace smart_ptr
         class intrusive_mixin
         {
         public:
-            intrusive_mixin *l = nullptr, *r = nullptr;
+            volatile intrusive_mixin *l = nullptr;
+            volatile intrusive_mixin *r = nullptr;
+
+            intrusive_mixin(intrusive_mixin *l, intrusive_mixin *r) : l(l), r(r) {}
+            intrusive_mixin() : intrusive_mixin(nullptr, nullptr) {}
 
         public:
-            void attach(intrusive_mixin* copy)
+            void attach(volatile intrusive_mixin* copy) volatile
             {
                 copy->l = this;
                 copy->r = r;
@@ -20,7 +24,7 @@ namespace smart_ptr
                 r = copy;
             }
 
-            void detach()
+            void detach() volatile
             {
                 if (l)
                     l->r = r;
@@ -30,10 +34,10 @@ namespace smart_ptr
                 r = nullptr;
             }
 
-            void swap(intrusive_mixin &other)
+            void swap(volatile intrusive_mixin &other) volatile
             {
-                intrusive_mixin* attach_target_a = (l ? l : r);
-                intrusive_mixin* attach_target_b = (other.l ? other.l : other.r);
+                volatile intrusive_mixin* attach_target_a = (l ? l : r);
+                volatile intrusive_mixin* attach_target_b = (other.l ? other.l : other.r);
                 detach();
                 other.detach();
                 if (attach_target_a)
@@ -53,25 +57,25 @@ namespace smart_ptr
         friend class linked_ptr;
 
     private:
-        mutable intrusive_mixin intrusive_node;
+        mutable volatile intrusive_mixin intrusive_node;
         T* pointer;
 
     public:
 // constructors / destructor
-        constexpr linked_ptr() noexcept : intrusive_node{nullptr, nullptr}, pointer(nullptr) {}
+        constexpr linked_ptr() noexcept : intrusive_node(), pointer(nullptr) {}
 
-        linked_ptr(T* pointer) noexcept : intrusive_node{nullptr, nullptr}, pointer(pointer) {}
+        linked_ptr(T* pointer) noexcept : intrusive_node(), pointer(pointer) {}
 
-        linked_ptr(linked_ptr const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
+        linked_ptr(linked_ptr const& other) : intrusive_node(), pointer(other.get())
         {
             other.attach(*this);
         }
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(U* pointer) : intrusive_node{nullptr, nullptr}, pointer(pointer) {}
+        linked_ptr(U* pointer) : intrusive_node(), pointer(pointer) {}
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(linked_ptr<U> const& other) : intrusive_node{nullptr, nullptr}, pointer(other.get())
+        linked_ptr(linked_ptr<U> const& other) : intrusive_node(), pointer(other.get())
         {
             other.attach(*this);
         }
