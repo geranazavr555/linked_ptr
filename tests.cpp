@@ -9,7 +9,7 @@ TEST(constructors, default_)
 {
     linked_ptr<int> i;
     linked_ptr<double> d;
-    linked_ptr<std::set<int>> s = nullptr;
+    linked_ptr<std::set<int>> s(nullptr);
 
     linked_ptr< linked_ptr<bool> > llb;
 }
@@ -141,6 +141,13 @@ TEST(common_interface, reset_nullptr_t)
     ASSERT_FALSE(x);
 }
 
+TEST(common_interface, reset_u)
+{
+    linked_ptr<Base1> y(new Base1());
+    y.reset(new Derived1());
+    SUCCEED();
+}
+
 TEST(common_interface, swap)
 {
     linked_ptr<int> x(new int(5)), y;
@@ -149,6 +156,16 @@ TEST(common_interface, swap)
     swap(x, y);
     ASSERT_FALSE(x);
     ASSERT_TRUE(y);
+}
+
+TEST(common_interface, swap_base_derived)
+{
+    linked_ptr<Base> y(new Base(5)), x(new Derived(5, 6));
+    ASSERT_EQ(y->result(), 5);
+    ASSERT_EQ(x->result(), 6);
+    swap(x, y);
+    ASSERT_EQ(y->result(), 6);
+    ASSERT_EQ(x->result(), 5);
 }
 
 TEST(common_interface, get)
@@ -218,6 +235,16 @@ TEST(comparison, eq)
 TEST(comparison, set)
 {
     std::set<linked_ptr<int> > q;
+    q.insert(linked_ptr<int>(new int(5)));
+    q.insert(linked_ptr<int>(new int(5)));
+    q.insert(linked_ptr<int>(new int(6)));
+    q.insert(linked_ptr<int>(*q.begin()));
+    ASSERT_EQ(q.size(), 3);
+}
+
+TEST(comparison, set_greater)
+{
+    std::set<linked_ptr<int>, std::greater<linked_ptr<int>> > q;
     q.insert(linked_ptr<int>(new int(5)));
     q.insert(linked_ptr<int>(new int(5)));
     q.insert(linked_ptr<int>(new int(6)));
@@ -366,8 +393,8 @@ TEST(special_cases, cyclic)
     char aa[sizeof(Node)], bb[sizeof(Node)];
     int x = 0;
     {
-        linked_ptr<Node> node1 = new(&aa) Node();
-        linked_ptr<Node> node2 = new(&bb) Node();
+        linked_ptr<Node> node1(new(&aa) Node());
+        linked_ptr<Node> node2(new(&bb) Node());
         node1->x = &x;
         node2->x = &x;
         node1->l = node2;

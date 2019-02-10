@@ -64,7 +64,7 @@ namespace smart_ptr
 // constructors / destructor
         constexpr linked_ptr() noexcept : intrusive_node(), pointer(nullptr) {}
 
-        linked_ptr(T* pointer) noexcept : intrusive_node(), pointer(pointer) {}
+        explicit linked_ptr(T* pointer) noexcept : intrusive_node(), pointer(pointer) {}
 
         linked_ptr(linked_ptr const& other) : intrusive_node(), pointer(other.get())
         {
@@ -72,7 +72,7 @@ namespace smart_ptr
         }
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
-        linked_ptr(U* pointer) : intrusive_node(), pointer(pointer) {}
+        explicit linked_ptr(U* pointer) : intrusive_node(), pointer(pointer) {}
 
         template <typename U, typename = std::enable_if<std::is_convertible_v<U*, T*>>>
         linked_ptr(linked_ptr<U> const& other) : intrusive_node(), pointer(other.get())
