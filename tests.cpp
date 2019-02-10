@@ -9,6 +9,7 @@ TEST(constructors, default_)
 {
     linked_ptr<int> i;
     linked_ptr<double> d;
+    linked_ptr<std::set<int>> s = nullptr;
 
     linked_ptr< linked_ptr<bool> > llb;
 }
@@ -19,11 +20,7 @@ TEST(constructors, forward_decl_def)
 {
     // Must compile
     linked_ptr<ForwardDeclaratedClass> x;
-    //extern ForwardDeclaratedClass exfwd;
-    //std::shared_ptr<ForwardDeclaratedClass> x(&exfwd);
     std::shared_ptr<ForwardDeclaratedClass> y;
-    //std::shared_ptr<int> z(new int(5));
-    //std::cout << "kek";
     SUCCEED();
 }
 
@@ -351,4 +348,30 @@ TEST(third_party_tests, unique2)
     check *= !p1.unique();
     check *= !p2.unique();
     ASSERT_TRUE(check);
+}
+
+struct Node
+{
+    int* x;
+    linked_ptr<Node> l;
+
+    ~Node()
+    {
+        (*x)++;
+    }
+};
+
+TEST(special_cases, cyclic)
+{
+    char aa[sizeof(Node)], bb[sizeof(Node)];
+    int x = 0;
+    {
+        linked_ptr<Node> node1 = new(&aa) Node();
+        linked_ptr<Node> node2 = new(&bb) Node();
+        node1->x = &x;
+        node2->x = &x;
+        node1->l = node2;
+        node2->l = node1;
+    }
+    ASSERT_EQ(x, 0);
 }
